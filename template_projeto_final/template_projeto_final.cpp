@@ -176,3 +176,8 @@ void Usuario::realizarDevolucao(){
     }
 }
 
+/*--------------------------------------------------
+	1.4 Aluno
+--------------------------------------------------*/
+Aluno::Aluno(int id, string nome):
+Usuario(id, nome, 3){}
