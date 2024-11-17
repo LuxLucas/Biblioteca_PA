@@ -72,13 +72,26 @@ public:
 };
 
 int main() {
+    setlocale(LC_ALL, "portuguese");
 	ItemBiblioteca item(1, "Gato Maroto", 2000);
+    Livro livro(2, "Babum 2", 2005, "Raul", "Comédia");
+    Usuario usuario(1, "Lucas", 10);
+
 	item.exibirDetalhes();
+    livro.exibirDetalhes();
+
+    cout << usuario.podeEmprestar() << endl;
+    cout << usuario.getId() << endl;
+    usuario.realizarEmprestimo();
+    usuario.exibirUsuario();
+    usuario.realizarDevolucao();
+    usuario.exibirUsuario();
+
     return 0;
 }
 
 /*--------------------------------------------------
-Declara��o de fun��es
+Declaração de funções
 --------------------------------------------------*/
 
 /*--------------------------------------------------
@@ -90,9 +103,9 @@ ItemBiblioteca::ItemBiblioteca(int id, string titulo, int ano):
 void  ItemBiblioteca::exibirDetalhes(){
 	cout << "---------------------------------------------------" << endl;
 	cout << "Id: " << id_ << endl;
-	cout << "T�tulo: " << titulo_ << endl;
+	cout << "Título: " << titulo_ << endl;
 	cout << "Ano: " << ano_ << endl;
-	cout << "Emprestado: " << emprestado_ << endl;
+	cout << "Emprestado: " << (emprestado_ ? "Sim" : "Não") << endl;
 	cout << "---------------------------------------------------" << endl;
 }
 		
@@ -114,3 +127,52 @@ void ItemBiblioteca::devolver(){
 /*--------------------------------------------------
 	1.2 Livro
 --------------------------------------------------*/
+Livro::Livro(int id, string titulo, int ano, string autor, string genero):
+ItemBiblioteca::ItemBiblioteca(id,titulo,ano), autor_(autor), genero_(genero){}
+
+void Livro::exibirDetalhes(){
+    cout << "---------------------------------------------------" << endl;
+	cout << "Id: " << id_ << endl;
+	cout << "Título: " << titulo_ << endl;
+	cout << "Ano: " << ano_ << endl;
+	cout << "Emprestado: " << (emprestado_ ? "Sim" : "Não") << endl;
+    cout << "Autor: " << autor_ << endl;
+    cout << "Gênero: " << genero_ << endl;
+	cout << "---------------------------------------------------" << endl;
+}
+
+/*--------------------------------------------------
+	1.3 Usuário
+--------------------------------------------------*/
+Usuario::Usuario(int id, string nome, int limiteEmprestimos):
+id_(id), nome_(nome), limiteEmprestimos_(limiteEmprestimos), emprestimosAtuais_(0){}
+
+int Usuario::getId(){
+    return id_;
+}
+
+void Usuario::exibirUsuario(){
+    cout << "---------------------------------------------------" << endl;
+	cout << "Id: " << id_ << endl;
+	cout << "Nome: " << nome_ << endl;
+	cout << "Limite de empréstimos: " << limiteEmprestimos_ << endl;
+	cout << "Emprestimos atuais: " << emprestimosAtuais_ << endl;
+	cout << "---------------------------------------------------" << endl;
+}
+
+bool Usuario::podeEmprestar(){
+    return emprestimosAtuais_ <= limiteEmprestimos_;
+}
+
+void Usuario::realizarEmprestimo(){
+    if(podeEmprestar()){
+        emprestimosAtuais_++;
+    }
+}
+
+void Usuario::realizarDevolucao(){
+    if(emprestimosAtuais_>0){
+        emprestimosAtuais_--;
+    }
+}
+
