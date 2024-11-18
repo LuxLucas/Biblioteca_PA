@@ -76,6 +76,7 @@ int main() {
 	ItemBiblioteca item(1, "Gato Maroto", 2000);
     Livro livro(2, "Babum 2", 2005, "Raul", "Comédia");
     Usuario usuario(1, "Lucas", 10);
+    Biblioteca biblioteca;
 
 	item.exibirDetalhes();
     livro.exibirDetalhes();
@@ -86,6 +87,8 @@ int main() {
     usuario.exibirUsuario();
     usuario.realizarDevolucao();
     usuario.exibirUsuario();
+
+    biblioteca.menu();
 
     return 0;
 }
@@ -187,3 +190,20 @@ Usuario(id, nome, 3){}
 --------------------------------------------------*/
 Aluno::Aluno(int id, string nome):
 Usuario(id, nome, 5){}
+
+/*--------------------------------------------------
+	1.6 Professor
+--------------------------------------------------*/
+void Biblioteca::menu(){
+    int opcao;
+    cout << "---------------Sistema de Biblioteca--------------" << endl;
+    cout << "1. Adicionar livro" << endl;
+    cout << "2. Listar livros" << endl;
+    cout << "3. Adicionar usuário" << endl;
+    cout << "4. Listar usuários" << endl;
+    cout << "5. Emprestar livro" << endl;
+    cout << "6. Devolver livro" << endl;
+    cout << "Escolha uma opção: ";
+    cin >> opcao;
+    cout << endl;
+}
