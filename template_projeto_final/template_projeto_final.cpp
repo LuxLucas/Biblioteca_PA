@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -59,7 +60,7 @@ public:
 class Biblioteca {
     vector<Livro> livros_;
     vector<Aluno> alunos_;
-    vector<Professor> professores;
+    vector<Professor> professores_;
 
 public:
     void adicionarLivro();
@@ -71,12 +72,23 @@ public:
     void menu();
 };
 
+class Menu{
+    private:
+        Biblioteca biblioteca_;
+    public:
+        Menu(Biblioteca &biblioteca);
+        void limparTela();
+        void principal();
+        bool obterResposta();
+};
+
 int main() {
     setlocale(LC_ALL, "portuguese");
 	ItemBiblioteca item(1, "Gato Maroto", 2000);
     Livro livro(2, "Babum 2", 2005, "Raul", "Comédia");
     Usuario usuario(1, "Lucas", 10);
     Biblioteca biblioteca;
+    Menu menu(biblioteca);
 
 	item.exibirDetalhes();
     livro.exibirDetalhes();
@@ -88,6 +100,7 @@ int main() {
     usuario.realizarDevolucao();
     usuario.exibirUsuario();
 
+    menu.limparTela();
     biblioteca.menu();
 
     return 0;
@@ -188,11 +201,11 @@ Usuario(id, nome, 3){}
 /*--------------------------------------------------
 	1.5 Professor
 --------------------------------------------------*/
-Aluno::Aluno(int id, string nome):
+Professor::Professor(int id, string nome):
 Usuario(id, nome, 5){}
 
 /*--------------------------------------------------
-	1.6 Professor
+	1.6 Biblioteca
 --------------------------------------------------*/
 void Biblioteca::menu(){
     int opcao;
@@ -206,4 +219,29 @@ void Biblioteca::menu(){
     cout << "Escolha uma opção: ";
     cin >> opcao;
     cout << endl;
+}
+
+/*--------------------------------------------------
+	1.7 Menu
+--------------------------------------------------*/
+Menu::Menu(Biblioteca &biblioteca):biblioteca_(biblioteca){}
+
+void Menu::limparTela(){
+    #ifdef _WIN32 || WIN32
+        system("cls");
+    #else __linux__
+        system("clear");
+    #endif
+}
+
+void Menu::principal(){
+    limparTela();
+    cout << "---------------Sistema de Biblioteca--------------" << endl;
+    cout << "1. Adicionar livro" << endl;
+    cout << "2. Listar livros" << endl;
+    cout << "3. Adicionar usuário" << endl;
+    cout << "4. Listar usuários" << endl;
+    cout << "5. Emprestar livro" << endl;
+    cout << "6. Devolver livro" << endl;
+    cout << "Escolha uma opção: ";
 }
