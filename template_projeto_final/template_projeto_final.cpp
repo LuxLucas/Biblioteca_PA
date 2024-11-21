@@ -25,6 +25,7 @@ class Livro : public ItemBiblioteca {
 protected:
 	string autor_;
 	string genero_;
+    int idLeitor_;
 	
 public:
     Livro(int id, string titulo, int ano, string autor, string genero);      
@@ -61,6 +62,16 @@ class Biblioteca {
     vector<Livro> livros_;
     vector<Aluno> alunos_;
     vector<Professor> professores_;
+
+    int ultimoIdLivro = 0, ultimoIdProfessor = 0, ultimoIdAluno = 0;
+
+private:
+    bool validarNome(string nome);
+    bool validarCriacaoDeLivro(int idLivro, string nomeLivro, string nomeAutor, string genero, string anoPublicacao);
+    bool alunoExiste(int idAluno);
+    bool professorExiste(int idProfessor);
+    bool livroExiste(int idLivro);
+    void limparTela();
 
 public:
     void adicionarLivro();
@@ -144,7 +155,7 @@ void ItemBiblioteca::devolver(){
 	1.2 Livro
 --------------------------------------------------*/
 Livro::Livro(int id, string titulo, int ano, string autor, string genero):
-ItemBiblioteca::ItemBiblioteca(id,titulo,ano), autor_(autor), genero_(genero){}
+ItemBiblioteca::ItemBiblioteca(id,titulo,ano), autor_(autor), genero_(genero), idLeitor_(0){}
 
 void Livro::exibirDetalhes(){
     cout << "---------------------------------------------------" << endl;
@@ -154,6 +165,7 @@ void Livro::exibirDetalhes(){
 	cout << "Emprestado: " << (emprestado_ ? "Sim" : "Não") << endl;
     cout << "Autor: " << autor_ << endl;
     cout << "Gênero: " << genero_ << endl;
+    cout << "Id do leitor: " << idLeitor_ << endl;
 	cout << "---------------------------------------------------" << endl;
 }
 
@@ -207,6 +219,86 @@ Usuario(id, nome, 5){}
 /*--------------------------------------------------
 	1.6 Biblioteca
 --------------------------------------------------*/
+void Biblioteca::limparTela(){
+    #ifdef _WIN32 || WIN32
+        system("cls");
+    #else __linux__
+        system("clear");
+    #endif
+}
+
+bool Biblioteca::validarNome(string nome){
+    return nome.length() > 0;
+}
+
+bool Biblioteca::alunoExiste(int idAluno){
+    int quantidadeAlunos = sizeof(alunos_);
+    for(int i = 0; i < quantidadeAlunos; i++){
+        if(alunos_[i].getId() == idAluno){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Biblioteca::professorExiste(int idProfessor){
+    int quantidadeProfessores = sizeof(professores_);
+    for(int i = 0; i < quantidadeProfessores; i++){
+        if(professores_[i].getId() == idProfessor){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Biblioteca::livroExiste(int idLivro){
+    int quantidadeLivros = sizeof(livros_);
+    for(int i = 0; i < quantidadeLivros; i++){
+        if(livros_[i].getId() == idLivro){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Biblioteca::validarCriacaoDeLivro(int idLivro, string nomeLivro, string nomeAutor, string genero, string anoPublicacao){
+    return (idLivro > 0 && !livroExiste(idLivro)) && (nomeLivro.length() > 0) && (nomeAutor.length() > 0) && (genero.length() > 0) && (anoPublicacao.length() > 0);
+}
+
+//autor_ genero_ idLeitor_ int id_, ano_ titulo_ emprestado_
+void Biblioteca::adicionarLivro(){
+    string nomeLivro, nomeAutor, genero, anoPublicacao, resposta;
+    int idLivro;
+
+    cout << "Nome: " << endl;
+    cin >> nomeLivro;
+    cout << endl;
+
+    cout << "Autor: " << endl;
+    cin >> nomeAutor;
+    cout << endl;
+
+    cout << "Gênero: " << endl;
+    cin >> genero;
+    cout << endl;
+
+    cout << "Data de publicação: " << endl;
+    cin >> anoPublicacao;
+    cout << endl;
+
+    cout << "Id: " << endl;
+    cin >> idLivro;
+    cout << endl;
+
+    if(validarCriacaoDeLivro(idLivro, nomeLivro, nomeAutor, genero, anoPublicacao)){
+        livros_.emplace_back(idLivro, nomeLivro, anoPublicacao, nomeAutor, genero, anoPublicacao);
+    }else{
+        cout << "ERRO: Valor indevido inserido" << endl;
+    }
+    cout << "Prescione ENTER para continuar... ";
+    cin >> resposta;
+}
+
 void Biblioteca::menu(){
     int opcao;
     cout << "---------------Sistema de Biblioteca--------------" << endl;
@@ -216,32 +308,7 @@ void Biblioteca::menu(){
     cout << "4. Listar usuários" << endl;
     cout << "5. Emprestar livro" << endl;
     cout << "6. Devolver livro" << endl;
-    cout << "Escolha uma opção: ";
+    cout << "\nEscolha uma opção: ";
     cin >> opcao;
     cout << endl;
-}
-
-/*--------------------------------------------------
-	1.7 Menu
---------------------------------------------------*/
-Menu::Menu(Biblioteca &biblioteca):biblioteca_(biblioteca){}
-
-void Menu::limparTela(){
-    #ifdef _WIN32 || WIN32
-        system("cls");
-    #else __linux__
-        system("clear");
-    #endif
-}
-
-void Menu::principal(){
-    limparTela();
-    cout << "---------------Sistema de Biblioteca--------------" << endl;
-    cout << "1. Adicionar livro" << endl;
-    cout << "2. Listar livros" << endl;
-    cout << "3. Adicionar usuário" << endl;
-    cout << "4. Listar usuários" << endl;
-    cout << "5. Emprestar livro" << endl;
-    cout << "6. Devolver livro" << endl;
-    cout << "Escolha uma opção: ";
 }
