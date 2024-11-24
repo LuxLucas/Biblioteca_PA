@@ -350,6 +350,35 @@ bool Biblioteca::validarCriacaoDeUsuario(string& nomeAluno){
     return !nomeAluno.empty() && !possuiNumero(nomeAluno);
 }      
 
+void Biblioteca::adicionarUsuario(){
+    string tipoUsuario, nomeUsuario;
+    cout << "\n-----------------Adicionar usuário----------------" << endl;
+    cout << "Nome do usuário: ";
+    getline(cin, nomeUsuario);
+    cout << "Tipo de usuário (1. Aluno | 2. Professor): ";
+    getline(cin, tipoUsuario);
+
+    if((validarCriacaoDeUsuario(nomeUsuario)) && 
+        (stoi(tipoUsuario) > 0 && stoi(tipoUsuario) < 3)){
+        if(stoi(tipoUsuario) == 1){
+            alunos_.emplace_back(registrarIdAluno(),nomeUsuario);
+            cout << "\nAluno registrado" << endl;
+
+        }else{
+            professores_.emplace_back(registrarIdProfessor(),nomeUsuario);
+            cout << "\nProfessor registrado" << endl;
+        }
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+
+    }else{
+        cout << "\nERRO: Valor indevido inserido" << endl;
+        cin.clear();
+        cin.ignore();
+        cout << "\nPrescione ENTER para continuar... ";
+        cin.get();
+    }
+}
+
 bool Biblioteca::validarResposta(string &resposta){
     int respostaNumerica;
     try{
