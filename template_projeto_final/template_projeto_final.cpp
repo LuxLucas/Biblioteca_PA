@@ -35,6 +35,8 @@ protected:
 public:
     Livro(int id, string titulo, int ano, string autor, string genero);      
     void exibirDetalhes() override;
+    void setIdLeitor(int id);
+    int getIidLeitor();
 };
 
 class Usuario {
@@ -190,6 +192,14 @@ void Livro::exibirDetalhes(){
     cout << "Autor: " << autor_ << endl;
     cout << "Gênero: " << genero_ << endl;
     cout << "Id do leitor: " << idLeitor_ << endl;
+}
+
+int Livro::getLivro(){
+    return idLeitor_;
+}
+
+void Livro::setIdLeitor(int id){
+    idLeitor_ = id;
 }
 
 /*--------------------------------------------------
@@ -427,6 +437,12 @@ void Biblioteca::listarUsuarios(){
             cout << "\nERRO: Tipo de usuário não existe";
             this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }
+}
+
+void Biblioteca::emprestarLivro(){
+
+    cout << "\n----------------Empréstimo de livro---------------" << endl;
+    cout << 
 }
 
 bool Biblioteca::validarResposta(string &resposta){
