@@ -86,7 +86,8 @@ protected:
 
     bool palavraPossuiNumero(string& palavra);
 
-
+    void listarAlunos();
+    void listarProfessores();
 
 public:
     void adicionarLivro();
@@ -126,8 +127,12 @@ int main() {
                 biblioteca.limparTela();
                 biblioteca.adicionarUsuario();
                 break;
+            case 4:
+                biblioteca.limparTela();
+                biblioteca.listarUsuarios();
+                break;
             default: 
-                cout << "ERRO: Comando inválido\n";
+                cout << "\nERRO: Comando inválido\n";
                 this_thread::sleep_for(chrono::seconds(segundosDeEspera));
                 biblioteca.limparTela();
         }
@@ -203,7 +208,6 @@ void Usuario::exibirUsuario(){
 	cout << "Nome: " << nome_ << endl;
 	cout << "Limite de empréstimos: " << limiteEmprestimos_ << endl;
 	cout << "Emprestimos atuais: " << emprestimosAtuais_ << endl;
-	cout << "---------------------------------------------------" << endl;
 }
 
 bool Usuario::podeEmprestar(){
@@ -373,13 +377,44 @@ void Biblioteca::adicionarUsuario(){
 
     }else{
         cout << "\nERRO: Valor indevido inserido" << endl;
-        cin.clear();
-        cin.ignore();
         cout << "\nPrescione ENTER para continuar... ";
         cin.get();
     }
 }
 
+void Biblioteca::listarAlunos(){
+    if(alunos_.size() == 0){
+        cout << "\nSem alunos cadastrados";
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+    }else{
+        for(Aluno aluno: alunos_){
+            aluno.exibirUsuario();
+        }
+        cout << "\nPrescione ENTER para continuar...";
+        cin.get();
+    }
+}
+
+void Biblioteca::listarUsuarios(){
+    string tipoPesquisa;
+    cout << "\n------------------Listar Usuários-----------------" << endl;
+    cout << "Tipo de usuário (1: Aluno | 2: Professor): ";
+    getline(cin, tipoPesquisa);
+
+    switch(stoi(tipoPesquisa)){
+        case 1:
+            limparTela();
+            listarAlunos();
+            break;
+        case 2:
+            limparTela();
+            //listarProfessores();
+            break;
+        default:
+            cout << "\nERRO: Tipo de usuário não existe";
+            this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+    }
+}
 
 bool Biblioteca::validarResposta(string &resposta){
     int respostaNumerica;
