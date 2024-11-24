@@ -82,6 +82,7 @@ protected:
     int registrarIdLivro();
     int registrarIdProfessor();
     int registrarIdAluno();
+    bool validarResposta(string &resposta);
 
 public:
     void adicionarLivro();
@@ -322,21 +323,29 @@ void Biblioteca::adicionarLivro(){
 void Biblioteca::listarLivros(){
     if(livros_.size() == 0){
         cout << "\nNão há livros listados";
-        cin.ignore();
-        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }else{
         cout << "-----------------Listagem de livros----------------" << endl;
         for(Livro livro: livros_){
             livro.exibirDetalhes();
         }
-        cout << "\nPrescione ENTER para continuar...";
-        cin.ignore();
-        cin.get();
+    }
+    cout << "\nPrescione ENTER para continuar...";
+    cin.ignore();
+    cin.get();
+}
+
+bool Biblioteca::validarResposta(string &resposta){
+    int respostaNumerica;
+    try{
+        respostaNumerica = stoi(resposta);
+        return 7 > respostaNumerica && respostaNumerica > -1;
+    }catch(...){
+        return false;
     }
 }
 
 int Biblioteca::menu(){
-    int opcao;
+    string resposta;
     cout << "\n---------------Sistema de Biblioteca--------------" << endl;
     cout << "1. Adicionar livro" << endl;
     cout << "2. Listar livros" << endl;
@@ -346,7 +355,7 @@ int Biblioteca::menu(){
     cout << "6. Devolver livro" << endl;
     cout << "0. Sair do programa" << endl;
     cout << "\nEscolha uma opção: ";
-    cin >> opcao;
-    
-    return (7 > opcao) && (opcao > -1) ? opcao : -1;
+    cin >> resposta;
+
+    return validarResposta(resposta) ? stoi(resposta) : -1;
 }
