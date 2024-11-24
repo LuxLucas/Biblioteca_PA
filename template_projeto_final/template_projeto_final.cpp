@@ -2,12 +2,9 @@
 #include <vector>
 #include <string>
 
-//Para usar função system
-#include <stdlib.h>
-
-#include <thread> //Para parar o programa temporariamente
-#include <chrono> //Contagem de tempo
-
+#include <stdlib.h> //Para usar a função system
+#include <thread> //Permite pausar o programa
+#include <chrono> //Possui funções para contar a passagem do tempo
 
 using namespace std;
 
@@ -76,13 +73,21 @@ class Biblioteca {
 protected:
     bool validarNome(string nome);
     bool validarCriacaoDeLivro(string nomeLivro, string nomeAutor, string genero, int anoPublicacao);
+    bool validarCriacaoDeUsuario(string& nomeUsuario);
+    bool validarResposta(string &resposta);
+    
     bool alunoExiste(int idAluno);
     bool professorExiste(int idProfessor);
     bool livroExiste(int idLivro);
+
     int registrarIdLivro();
     int registrarIdProfessor();
     int registrarIdAluno();
-    bool validarResposta(string &resposta);
+
+    void registrarAluno();
+    void registrarProfessor();
+
+    bool possuiNumero(string& palavra);
 
 public:
     void adicionarLivro();
@@ -236,10 +241,6 @@ void Biblioteca::limparTela(){
         system("clear");
     #endif
 }
- 
-bool Biblioteca::validarNome(string nome){
-    return nome.length() > 0;
-}
 
 bool Biblioteca::alunoExiste(int idAluno){
     for(Aluno aluno: alunos_){
@@ -308,7 +309,7 @@ void Biblioteca::adicionarLivro(){
     cout << "Ano de publicação: ";
     cin >> anoPublicacao;       
 
-    if(validarCriacaoDeLivro(nomeLivro, nomeAutor, genero, anoPublicacao) && !cin.fail()){
+    if(validarCriacaoDeLivro(nomeLivro, nomeAutor, genero, anoPublicacao)){
         livros_.emplace_back(registrarIdLivro(), nomeLivro, anoPublicacao, nomeAutor, genero);
         cout << "\nLivro adicionado" << endl;
         this_thread::sleep_for(chrono::seconds(segundosDeEspera));
@@ -316,7 +317,8 @@ void Biblioteca::adicionarLivro(){
         cout << "\nERRO: Valor indevido inserido" << endl;
         cin.clear();
         cin.ignore();
-        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+        cout << "\nPrescione ENTER para continuar... ";
+        cin.get();
     }
 }
 
@@ -332,6 +334,59 @@ void Biblioteca::listarLivros(){
     cout << "\nPrescione ENTER para continuar...";
     cin.ignore();
     cin.get();
+}
+
+bool Biblioteca::possuiNumero(string& palavra){
+    for(char letra: palavra){
+        if(isdigit(letra)){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Biblioteca::validarCriacaoDeUsuario(string& nomeAluno){
+    return !nomeAluno.empty() && !possuiNumero(nomeAluno);
+}
+
+void Biblioteca::registrarAluno(){
+    string nomeAluno;
+    cout << "-----------------Adicionando aluno----------------\n";
+    cout << "Nome do aluno: ";
+    getline(cin, nomeAluno);
+    cin.ignore();
+
+    if(validarCriacaoDeUsuario(nomeAluno)){
+        alunos_.emplace_back(registrarIdAluno(),nomeAluno);
+        cout << "\nAluno registrado" << endl;
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+    }else{
+        cout << "\nERRO: Valor indevido inserido" << endl;
+        cin.clear();
+        cin.ignore();
+        cout << "\nPrescione ENTER para continuar... ";
+        cin.get();
+    }
+}
+
+void Biblioteca::registrarProfessor(){
+    string nomeProfessor;
+    cout << "---------------Adicionando professor--------------\n";
+    cout << "Nome do professor: ";
+    getline(cin, nomeProfessor);
+    cin.ignore();
+
+    if(validarCriacaoDeUsuario(nomeProfessor)){
+        professores_.emplace_back(registrarIdProfessor(),nomeProfessor);
+        cout << "\nProfessor registrado" << endl;
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+    }else{
+        cout << "\nERRO: Valor indevido inserido" << endl;
+        cin.clear();
+        cin.ignore();
+        cout << "\nPrescione ENTER para continuar... ";
+        cin.get();
+    }
 }
 
 bool Biblioteca::validarResposta(string &resposta){
