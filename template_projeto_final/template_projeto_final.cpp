@@ -91,6 +91,10 @@ protected:
     void listarAlunos();
     void listarProfessores();
 
+    Aluno obterAlunoPorId(int id);
+    Professor obterProfessorPorId(int id);
+    Livro obterLivroPorId(int id);
+
 public:
     void adicionarLivro();
     void listarLivros();
@@ -439,10 +443,29 @@ void Biblioteca::listarUsuarios(){
     }
 }
 
-void Biblioteca::emprestarLivro(){
+Aluno Biblioteca::obterAlunoPorId(int id){
+    for(Aluno aluno: alunos_){
+        if(aluno.getId() == id){
+            return aluno;
+        }
+    }
+}
 
+void Biblioteca::emprestarLivro(){
+    int idLeitor, idLivro;
     cout << "\n----------------Empréstimo de livro---------------" << endl;
-    cout << 
+
+    cout << "Id do livro: ";
+    cin >> idLivro;
+
+    cout << "\nId do leitor: ";
+    cin >> idLeitor;
+
+    if(alunoExiste(idLeitor) && livroExiste(idLivro)){
+
+    }else{
+        cout << "\nERRO: livro ou leitor não encontrado";
+    }
 }
 
 bool Biblioteca::validarResposta(string &resposta){
