@@ -84,9 +84,6 @@ protected:
     int registrarIdProfessor();
     int registrarIdAluno();
 
-    void registrarAluno();
-    void registrarProfessor();
-
     bool possuiNumero(string& palavra);
 
 public:
@@ -122,6 +119,10 @@ int main() {
             case 2:
                 biblioteca.limparTela();
                 biblioteca.listarLivros();
+                break;
+            case 3:
+                biblioteca.limparTela();
+                biblioteca.adicionarUsuario();
                 break;
             default: 
                 cout << "ERRO: Comando inválido\n";
@@ -347,47 +348,7 @@ bool Biblioteca::possuiNumero(string& palavra){
 
 bool Biblioteca::validarCriacaoDeUsuario(string& nomeAluno){
     return !nomeAluno.empty() && !possuiNumero(nomeAluno);
-}
-
-void Biblioteca::registrarAluno(){
-    string nomeAluno;
-    cout << "-----------------Adicionando aluno----------------\n";
-    cout << "Nome do aluno: ";
-    getline(cin, nomeAluno);
-    cin.ignore();
-
-    if(validarCriacaoDeUsuario(nomeAluno)){
-        alunos_.emplace_back(registrarIdAluno(),nomeAluno);
-        cout << "\nAluno registrado" << endl;
-        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
-    }else{
-        cout << "\nERRO: Valor indevido inserido" << endl;
-        cin.clear();
-        cin.ignore();
-        cout << "\nPrescione ENTER para continuar... ";
-        cin.get();
-    }
-}
-
-void Biblioteca::registrarProfessor(){
-    string nomeProfessor;
-    cout << "---------------Adicionando professor--------------\n";
-    cout << "Nome do professor: ";
-    getline(cin, nomeProfessor);
-    cin.ignore();
-
-    if(validarCriacaoDeUsuario(nomeProfessor)){
-        professores_.emplace_back(registrarIdProfessor(),nomeProfessor);
-        cout << "\nProfessor registrado" << endl;
-        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
-    }else{
-        cout << "\nERRO: Valor indevido inserido" << endl;
-        cin.clear();
-        cin.ignore();
-        cout << "\nPrescione ENTER para continuar... ";
-        cin.get();
-    }
-}
+}      
 
 bool Biblioteca::validarResposta(string &resposta){
     int respostaNumerica;
@@ -411,6 +372,7 @@ int Biblioteca::menu(){
     cout << "0. Sair do programa" << endl;
     cout << "\nEscolha uma opção: ";
     cin >> resposta;
+    cin.ignore();
 
     return validarResposta(resposta) ? stoi(resposta) : -1;
 }
