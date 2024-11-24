@@ -75,10 +75,13 @@ class Biblioteca {
 
 protected:
     bool validarNome(string nome);
-    bool validarCriacaoDeLivro(int idLivro, string nomeLivro, string nomeAutor, string genero, int anoPublicacao);
+    bool validarCriacaoDeLivro(string nomeLivro, string nomeAutor, string genero, int anoPublicacao);
     bool alunoExiste(int idAluno);
     bool professorExiste(int idProfessor);
     bool livroExiste(int idLivro);
+    int registrarIdLivro();
+    int registrarIdProfessor();
+    int registrarIdAluno();
 
 public:
     void adicionarLivro();
@@ -95,11 +98,11 @@ public:
 
 int main() {
     setlocale(LC_ALL, "portuguese");
-
     Biblioteca biblioteca;
     int opcao;
 
     while(true){
+        biblioteca.limparTela();
         opcao = biblioteca.menu();
 
         if(opcao == 0){
@@ -173,7 +176,6 @@ void Livro::exibirDetalhes(){
     cout << "Autor: " << autor_ << endl;
     cout << "Gênero: " << genero_ << endl;
     cout << "Id do leitor: " << idLeitor_ << endl;
-	cout << "---------------------------------------------------" << endl;
 }
 
 /*--------------------------------------------------
@@ -239,9 +241,8 @@ bool Biblioteca::validarNome(string nome){
 }
 
 bool Biblioteca::alunoExiste(int idAluno){
-    int quantidadeAlunos = sizeof(alunos_);
-    for(int i = 0; i < quantidadeAlunos; i++){
-        if(alunos_[i].getId() == idAluno){
+    for(Aluno aluno: alunos_){
+        if(aluno.getId() == idAluno){
             return true;
         }
     }
@@ -249,9 +250,8 @@ bool Biblioteca::alunoExiste(int idAluno){
 }
 
 bool Biblioteca::professorExiste(int idProfessor){
-    int quantidadeProfessores = sizeof(professores_);
-    for(int i = 0; i < quantidadeProfessores; i++){
-        if(professores_[i].getId() == idProfessor){
+    for(Professor professor: professores_){
+        if(professor.getId() == idProfessor){
             return true;
         }
     }
@@ -259,74 +259,92 @@ bool Biblioteca::professorExiste(int idProfessor){
 }
 
 bool Biblioteca::livroExiste(int idLivro){
-    int quantidadeLivros = sizeof(livros_);
-    for(int i = 0; i < quantidadeLivros; i++){
-        if(livros_[i].getId() == idLivro){
+    for(Livro livro: livros_){
+        if(livro.getId() == idLivro){
             return true;
         }
     }
     return false;
 }
 
-bool Biblioteca::validarCriacaoDeLivro(int idLivro, string nomeLivro, string nomeAutor, string genero, int anoPublicacao){
-    return (idLivro > 0 && !livroExiste(idLivro)) && 
-            (nomeLivro.length() > 0) && 
+bool Biblioteca::validarCriacaoDeLivro(string nomeLivro, string nomeAutor, string genero, int anoPublicacao){
+    return  (nomeLivro.length() > 0) && 
             (nomeAutor.length() > 0) && 
             (genero.length() > 0) && 
             (anoPublicacao > 0 && anoPublicacao <= 2024);
 }
 
-//autor_ genero_ idLeitor_ int id_, ano_ titulo_ emprestado_
+int Biblioteca::registrarIdLivro(){
+    ultimoIdLivro++;
+    return ultimoIdLivro;
+}
+
+int Biblioteca::registrarIdProfessor(){
+    ultimoIdProfessor++;
+    return ultimoIdProfessor;
+}
+
+int Biblioteca::registrarIdAluno(){
+    ultimoIdAluno++;
+    return ultimoIdAluno;
+}
+
 void Biblioteca::adicionarLivro(){
     string nomeLivro, nomeAutor, genero, resposta;
-    int anoPublicacao, idLivro;
+    int anoPublicacao;
 
     cout << "-----------------Adicionando Livro----------------" << endl;
     cout << "Nome: ";
-    cin << nomeLivro;
+    cin.ignore();
+    getline(cin, nomeLivro);
 
     cout << "Autor: ";
-    cin << nomeAutor;
+    getline(cin, nomeAutor);
 
     cout << "Gênero: ";
-    cin << genero;
+    getline(cin, genero);
 
     cout << "Ano de publicação: ";
-    cin >> anoPublicacao;
+    cin >> anoPublicacao;       
 
-    cout << "Id: ";
-    cin >> idLivro;
-
-    if(validarCriacaoDeLivro(idLivro, nomeLivro, nomeAutor, genero, anoPublicacao)){
-        livros_.emplace_back(idLivro, nomeLivro, anoPublicacao, nomeAutor, genero);
-        cout << "Livro adicionado" << endl;
+    if(validarCriacaoDeLivro(nomeLivro, nomeAutor, genero, anoPublicacao) && !cin.fail()){
+        livros_.emplace_back(registrarIdLivro(), nomeLivro, anoPublicacao, nomeAutor, genero);
+        cout << "\nLivro adicionado" << endl;
         this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }else{
-        cout << "ERRO: Valor indevido inserido" << endl;
+        cout << "\nERRO: Valor indevido inserido" << endl;
+        cin.clear();
+        cin.ignore();
         this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }
 }
 
 void Biblioteca::listarLivros(){
-    if(sizeof(livros_) == 0){
-        cout << "Não há livros listados";
+    if(livros_.size() == 0){
+        cout << "\nNão há livros listados";
+        cin.ignore();
         this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }else{
+        cout << "-----------------Listagem de livros----------------" << endl;
         for(Livro livro: livros_){
             livro.exibirDetalhes();
         }
+        cout << "\nPrescione ENTER para continuar...";
+        cin.ignore();
+        cin.get();
     }
 }
 
 int Biblioteca::menu(){
     int opcao;
-    cout << "---------------Sistema de Biblioteca--------------" << endl;
+    cout << "\n---------------Sistema de Biblioteca--------------" << endl;
     cout << "1. Adicionar livro" << endl;
     cout << "2. Listar livros" << endl;
     cout << "3. Adicionar usuário" << endl;
     cout << "4. Listar usuários" << endl;
     cout << "5. Emprestar livro" << endl;
     cout << "6. Devolver livro" << endl;
+    cout << "0. Sair do programa" << endl;
     cout << "\nEscolha uma opção: ";
     cin >> opcao;
     
