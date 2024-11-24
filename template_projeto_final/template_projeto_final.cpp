@@ -395,6 +395,19 @@ void Biblioteca::listarAlunos(){
     }
 }
 
+void Biblioteca::listarProfessores(){
+    if(professores_.size() == 0){
+        cout << "\nSem professores cadastrados";
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+    }else{
+        for(Professor professor: professores_){
+            professor.exibirUsuario();
+        }
+        cout << "\nPrescione ENTER para continuar...";
+        cin.get();
+    }
+}
+
 void Biblioteca::listarUsuarios(){
     string tipoPesquisa;
     cout << "\n------------------Listar Usuários-----------------" << endl;
@@ -408,7 +421,7 @@ void Biblioteca::listarUsuarios(){
             break;
         case 2:
             limparTela();
-            //listarProfessores();
+            listarProfessores();
             break;
         default:
             cout << "\nERRO: Tipo de usuário não existe";
