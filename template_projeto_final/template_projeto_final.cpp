@@ -84,7 +84,9 @@ protected:
     int registrarIdProfessor();
     int registrarIdAluno();
 
-    bool possuiNumero(string& palavra);
+    bool palavraPossuiNumero(string& palavra);
+
+
 
 public:
     void adicionarLivro();
@@ -337,7 +339,7 @@ void Biblioteca::listarLivros(){
     cin.get();
 }
 
-bool Biblioteca::possuiNumero(string& palavra){
+bool Biblioteca::palavraPossuiNumero(string& palavra){
     for(char letra: palavra){
         if(isdigit(letra)){
             return true;
@@ -347,7 +349,7 @@ bool Biblioteca::possuiNumero(string& palavra){
 }
 
 bool Biblioteca::validarCriacaoDeUsuario(string& nomeAluno){
-    return !nomeAluno.empty() && !possuiNumero(nomeAluno);
+    return !nomeAluno.empty() && !palavraPossuiNumero(nomeAluno);
 }      
 
 void Biblioteca::adicionarUsuario(){
@@ -358,8 +360,7 @@ void Biblioteca::adicionarUsuario(){
     cout << "Tipo de usuário (1. Aluno | 2. Professor): ";
     getline(cin, tipoUsuario);
 
-    if((validarCriacaoDeUsuario(nomeUsuario)) && 
-        (stoi(tipoUsuario) > 0 && stoi(tipoUsuario) < 3)){
+    if((validarCriacaoDeUsuario(nomeUsuario)) && (stoi(tipoUsuario) > 0 && stoi(tipoUsuario) < 3)){
         if(stoi(tipoUsuario) == 1){
             alunos_.emplace_back(registrarIdAluno(),nomeUsuario);
             cout << "\nAluno registrado" << endl;
@@ -378,6 +379,7 @@ void Biblioteca::adicionarUsuario(){
         cin.get();
     }
 }
+
 
 bool Biblioteca::validarResposta(string &resposta){
     int respostaNumerica;
