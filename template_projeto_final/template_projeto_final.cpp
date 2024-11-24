@@ -459,6 +459,14 @@ Professor Biblioteca::obterProfessorPorId(int id){
     }
 }
 
+Livro Biblioteca::obterLivroPorId(int id){
+    for(Livro livro: livros_){
+        if(livro.getId() == id){
+            return livro;
+        }
+    }
+}
+
 void Biblioteca::emprestarLivro(){
     int idLeitor, idLivro;
     cout << "\n----------------Empréstimo de livro---------------" << endl;
