@@ -34,7 +34,6 @@ protected:
 public:
     Livro(int id, string titulo, int ano, string autor, string genero);      
     void exibirDetalhes() override;
-    void setIdLeitor(int id);
     int getIdLeitor();
 };
 
@@ -142,6 +141,10 @@ int main() {
                 biblioteca.limparTela();
                 biblioteca.emprestarLivro();
                 break;
+            case 6:
+                biblioteca.limparTela();
+                biblioteca.devolverLivro();
+                break;
             default: 
                 cout << "\nERRO: Comando inválido\n";
                 this_thread::sleep_for(chrono::seconds(segundosDeEspera));
@@ -207,10 +210,6 @@ void Livro::exibirDetalhes(){
 
 int Livro::getIdLeitor(){
     return idLeitor_;
-}
-
-void Livro::setIdLeitor(int id){
-    idLeitor_ = id;
 }
 
 /*--------------------------------------------------
@@ -521,18 +520,48 @@ void Biblioteca::emprestarLivro(){
 }
 
 void Biblioteca::devolverLivro(){
-    int idLeitor, idLivro, tipoUsuario;
+    int idLivro;
 
     cout << "\n----------------Devolução de livro---------------" << endl;
 
     cout << "Id do livro: ";
     cin >> idLivro;
 
-    cout << "\nId do leitor: ";
-    cin >> idLeitor;
+    if(livroExiste(idLivro)){
+        Livro& livro = obterLivroPorId(idLivro);
+        if(livro.isEmprestado()){
+            if(!(alunoExiste(livro.getIdLeitor())||professorExiste(livro.getIdLeitor()))){
+                cout << "\nERRO: leitor do livro não encontrado" << endl;
+                cout << "\nPrescione ENTER para continuar" << endl;
+                cin.get();
+            }
+            if(alunoExiste(livro.getIdLeitor())){
+                Aluno& aluno = obterAlunoPorId(livro.getIdLeitor());
+                aluno.realizarDevolucao();
+                livro.devolver();
 
-    cout << "\nTipo de leitor (1: Aluno | 2: Professor): ";
-    cin >> tipoUsuario;
+                cout << "\nDevolução realizada" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }
+            if(professorExiste(livro.getIdLeitor())){
+                Professor& professor = obterProfessorPorId(livro.getIdLeitor());
+                professor.realizarDevolucao();
+                livro.devolver();
+
+                cout << "\nDevolução realizada" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }
+        }else{
+            cout << "\nLivro não está em empréstimo" << endl;
+            cout << "\nPrescione ENTER para continuar" << endl;
+            cin.get();
+        }
+    }else{
+        cout << "\nLivro não encontrado" << endl;
+        cout << "\nPrescione ENTER para continuar" << endl;
+        cin.get();
+    }
+    cin.ignore();
 }
 
 bool Biblioteca::validarResposta(string resposta){
