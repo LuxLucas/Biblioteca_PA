@@ -12,7 +12,7 @@ const int segundosDeEspera = 2;
 
 class ItemBiblioteca {
 protected:
-    int id_, ano_;
+    int id_, ano_, idLeitor_;
     string titulo_;
     bool emprestado_;
 
@@ -22,7 +22,7 @@ public:
     virtual void exibirDetalhes();
     int getId();
     bool isEmprestado();
-    void emprestar();
+    void emprestar(int idLeitor);
     void devolver();
 };
 
@@ -30,13 +30,12 @@ class Livro : public ItemBiblioteca {
 protected:
 	string autor_;
 	string genero_;
-    int idLeitor_;
 	
 public:
     Livro(int id, string titulo, int ano, string autor, string genero);      
     void exibirDetalhes() override;
     void setIdLeitor(int id);
-    int getIidLeitor();
+    int getIdLeitor();
 };
 
 class Usuario {
@@ -70,30 +69,32 @@ class Biblioteca {
     vector<Aluno> alunos_;
     vector<Professor> professores_;
 
-    int ultimoIdLivro = 0, ultimoIdProfessor = 0, ultimoIdAluno = 0;
+    int ultimoIdLivro = 0, ultimoIdUsuario = 0;
 
 protected:
     bool validarNome(string nome);
     bool validarCriacaoDeLivro(string nomeLivro, string nomeAutor, string genero, int anoPublicacao);
-    bool validarCriacaoDeUsuario(string& nomeUsuario);
-    bool validarResposta(string &resposta);
+    bool validarCriacaoDeUsuario(string nomeUsuario);
+    bool validarResposta(string resposta);
     
     bool alunoExiste(int idAluno);
     bool professorExiste(int idProfessor);
     bool livroExiste(int idLivro);
 
     int registrarIdLivro();
-    int registrarIdProfessor();
-    int registrarIdAluno();
+    int registrarIdUsuario();
 
-    bool palavraPossuiNumero(string& palavra);
+    bool palavraPossuiNumero(string palavra);
 
     void listarAlunos();
     void listarProfessores();
 
-    Aluno obterAlunoPorId(int id);
-    Professor obterProfessorPorId(int id);
-    Livro obterLivroPorId(int id);
+    bool validarEmprestimoParaAluno(Aluno& aluno, Livro& livro);
+    bool validarEmprestimoParaProfessor(Professor& professor, Livro& livro);
+
+    Aluno& obterAlunoPorId(int id);
+    Professor& obterProfessorPorId(int id);
+    Livro& obterLivroPorId(int id);
 
 public:
     void adicionarLivro();
@@ -137,6 +138,10 @@ int main() {
                 biblioteca.limparTela();
                 biblioteca.listarUsuarios();
                 break;
+            case 5:
+                biblioteca.limparTela();
+                biblioteca.emprestarLivro();
+                break;
             default: 
                 cout << "\nERRO: Comando inválido\n";
                 this_thread::sleep_for(chrono::seconds(segundosDeEspera));
@@ -155,7 +160,7 @@ Declaração de funções
 	1.1 ItemBibioteca
 --------------------------------------------------*/
 ItemBiblioteca::ItemBiblioteca(int id, string titulo, int ano):
-	id_(id), titulo_(titulo), ano_(ano), emprestado_(false){}
+	id_(id), titulo_(titulo), ano_(ano), emprestado_(false), idLeitor_(0){}
 		
 void  ItemBiblioteca::exibirDetalhes(){
 	cout << "---------------------------------------------------" << endl;
@@ -174,18 +179,20 @@ bool ItemBiblioteca::isEmprestado(){
 	return emprestado_;
 }
 		
-void ItemBiblioteca::emprestar(){
+void ItemBiblioteca::emprestar(int idLeitor){
 	emprestado_ = true;
+    idLeitor_ = idLeitor;
 }
 		
 void ItemBiblioteca::devolver(){
 	emprestado_ = false;
+    idLeitor_ = 0;
 }
 /*--------------------------------------------------
 	1.2 Livro
 --------------------------------------------------*/
 Livro::Livro(int id, string titulo, int ano, string autor, string genero):
-ItemBiblioteca::ItemBiblioteca(id,titulo,ano), autor_(autor), genero_(genero), idLeitor_(0){}
+ItemBiblioteca::ItemBiblioteca(id,titulo,ano), autor_(autor), genero_(genero){}
 
 void Livro::exibirDetalhes(){
     cout << "---------------------------------------------------" << endl;
@@ -198,7 +205,7 @@ void Livro::exibirDetalhes(){
     cout << "Id do leitor: " << idLeitor_ << endl;
 }
 
-int Livro::getLivro(){
+int Livro::getIdLeitor(){
     return idLeitor_;
 }
 
@@ -225,7 +232,7 @@ void Usuario::exibirUsuario(){
 }
 
 bool Usuario::podeEmprestar(){
-    return emprestimosAtuais_ <= limiteEmprestimos_;
+    return emprestimosAtuais_ < limiteEmprestimos_;
 }
 
 void Usuario::realizarEmprestimo(){
@@ -302,14 +309,9 @@ int Biblioteca::registrarIdLivro(){
     return ultimoIdLivro;
 }
 
-int Biblioteca::registrarIdProfessor(){
-    ultimoIdProfessor++;
-    return ultimoIdProfessor;
-}
-
-int Biblioteca::registrarIdAluno(){
-    ultimoIdAluno++;
-    return ultimoIdAluno;
+int Biblioteca::registrarIdUsuario(){
+    ultimoIdUsuario++;
+    return ultimoIdUsuario;
 }
 
 void Biblioteca::adicionarLivro(){
@@ -353,11 +355,10 @@ void Biblioteca::listarLivros(){
         }
     }
     cout << "\nPrescione ENTER para continuar...";
-    cin.ignore();
     cin.get();
 }
 
-bool Biblioteca::palavraPossuiNumero(string& palavra){
+bool Biblioteca::palavraPossuiNumero(string palavra){
     for(char letra: palavra){
         if(isdigit(letra)){
             return true;
@@ -366,7 +367,7 @@ bool Biblioteca::palavraPossuiNumero(string& palavra){
     return false;
 }
 
-bool Biblioteca::validarCriacaoDeUsuario(string& nomeAluno){
+bool Biblioteca::validarCriacaoDeUsuario(string nomeAluno){
     return !nomeAluno.empty() && !palavraPossuiNumero(nomeAluno);
 }      
 
@@ -380,11 +381,11 @@ void Biblioteca::adicionarUsuario(){
 
     if((validarCriacaoDeUsuario(nomeUsuario)) && (stoi(tipoUsuario) > 0 && stoi(tipoUsuario) < 3)){
         if(stoi(tipoUsuario) == 1){
-            alunos_.emplace_back(registrarIdAluno(),nomeUsuario);
+            alunos_.emplace_back(registrarIdUsuario(),nomeUsuario);
             cout << "\nAluno registrado" << endl;
 
         }else{
-            professores_.emplace_back(registrarIdProfessor(),nomeUsuario);
+            professores_.emplace_back(registrarIdUsuario(),nomeUsuario);
             cout << "\nProfessor registrado" << endl;
         }
         this_thread::sleep_for(chrono::seconds(segundosDeEspera));
@@ -443,32 +444,41 @@ void Biblioteca::listarUsuarios(){
     }
 }
 
-Aluno Biblioteca::obterAlunoPorId(int id){
-    for(Aluno aluno: alunos_){
+Aluno& Biblioteca::obterAlunoPorId(int id){
+    for(Aluno& aluno: alunos_){
         if(aluno.getId() == id){
             return aluno;
         }
     }
 }
 
-Professor Biblioteca::obterProfessorPorId(int id){
-    for(Professor professor: professores_){
+Professor& Biblioteca::obterProfessorPorId(int id){
+    for(Professor& professor: professores_){
         if(professor.getId() == id){
-            return aluno;
+            return professor;
         }
     }
 }
 
-Livro Biblioteca::obterLivroPorId(int id){
-    for(Livro livro: livros_){
+Livro& Biblioteca::obterLivroPorId(int id){
+    for(Livro& livro: livros_){
         if(livro.getId() == id){
             return livro;
         }
     }
 }
 
+bool Biblioteca::validarEmprestimoParaAluno(Aluno& aluno, Livro& livro){
+    return aluno.podeEmprestar() && !livro.isEmprestado();
+}
+
+bool Biblioteca::validarEmprestimoParaProfessor(Professor& professor, Livro& livro){
+    return professor.podeEmprestar() && !livro.isEmprestado();
+}
+
 void Biblioteca::emprestarLivro(){
-    int idLeitor, idLivro;
+    int idLeitor, idLivro, tipoUsuario;
+
     cout << "\n----------------Empréstimo de livro---------------" << endl;
 
     cout << "Id do livro: ";
@@ -477,14 +487,55 @@ void Biblioteca::emprestarLivro(){
     cout << "\nId do leitor: ";
     cin >> idLeitor;
 
-    if(alunoExiste(idLeitor) && livroExiste(idLivro)){
+    if(livroExiste(idLivro) && (alunoExiste(idLeitor) || professorExiste(idLeitor))){
+        Livro& livro = obterLivroPorId(idLivro);
+        if(alunoExiste(idLeitor)){
+            Aluno& aluno = obterAlunoPorId(idLeitor);
+            if(validarEmprestimoParaAluno(aluno, livro)){
+                aluno.realizarEmprestimo();
+                livro.emprestar(idLeitor);
 
+                cout << "\nEmpréstimo realizado" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }else{
+                cout << "\nEmpréstimo não atende aos requisitos" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }
+        }else{
+            Professor& professor = obterProfessorPorId(idLeitor);
+            if(validarEmprestimoParaProfessor(professor, livro)){
+                professor.realizarEmprestimo();
+                livro.emprestar(idLeitor);
+
+                cout << "\nEmpréstimo realizado" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }else{
+                cout << "\nEmpréstimo não atende aos requisitos" << endl;
+                this_thread::sleep_for(chrono::seconds(segundosDeEspera));
+            }
+        }
     }else{
-        cout << "\nERRO: livro ou leitor não encontrado";
+        cout << "\nLivro ou usuário não encontrado" << endl;
+        this_thread::sleep_for(chrono::seconds(segundosDeEspera));
     }
 }
 
-bool Biblioteca::validarResposta(string &resposta){
+void Biblioteca::devolverLivro(){
+    int idLeitor, idLivro, tipoUsuario;
+
+    cout << "\n----------------Devolução de livro---------------" << endl;
+
+    cout << "Id do livro: ";
+    cin >> idLivro;
+
+    cout << "\nId do leitor: ";
+    cin >> idLeitor;
+
+    cout << "\nTipo de leitor (1: Aluno | 2: Professor): ";
+    cin >> tipoUsuario;
+}
+
+bool Biblioteca::validarResposta(string resposta){
     int respostaNumerica;
     try{
         respostaNumerica = stoi(resposta);
